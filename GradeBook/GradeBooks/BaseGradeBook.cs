@@ -1,22 +1,24 @@
-﻿using System;
-using System.Linq;
-
-using GradeBook.Enums;
-using System.Collections.Generic;
-using System.IO;
+﻿using GradeBook.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace GradeBook.GradeBooks
 {
-    public class BaseGradeBook
+    public abstract class BaseGradeBook
     {
         public string Name { get; set; }
         public List<Student> Students { get; set; }
+        public GradeBookType Type { get; set; }
+        public bool IsWeighted { get; set; }
 
-        public BaseGradeBook(string name)
+        public BaseGradeBook(string name, bool weighted)
         {
             Name = name;
+            IsWeighted = weighted;
             Students = new List<Student>();
         }
 
@@ -106,20 +108,29 @@ namespace GradeBook.GradeBooks
 
         public virtual double GetGPA(char letterGrade, StudentType studentType)
         {
+            double gpa = 0;
+            if (IsWeighted && (studentType == StudentType.DualEnrolled || studentType == StudentType.Honors))
+            {
+                gpa = 1;
+            }
             switch (letterGrade)
             {
                 case 'A':
-                    return 4;
+                    gpa += 4;
+                    break;
                 case 'B':
-                    return 3;
+                    gpa += 3;
+                    break;
                 case 'C':
-                    return 2;
+                    gpa += 2;
+                    break;
                 case 'D':
-                    return 1;
+                    gpa += 1;
+                    break;
                 case 'F':
-                    return 0;
+                    break;
             }
-            return 0;
+            return gpa;
         }
 
         public virtual void CalculateStatistics()
